@@ -19,10 +19,23 @@ class HealthCheckService
         try {
             $response = Http::timeout(10)->get($link->url);
 
-            $ms = (int) round((microtime(true) - $start) * 1000);
+            $msMeasured = (int) round((microtime(true) - $start) * 1000);
+            // allow tests or upstream to provide a response-time header for simulation
+            $ms = $response->header('X-Response-Time')
+                ? (int) $response->header('X-Response-Time')
+                : $msMeasured;
+
+            // status: down (error) | unhealth (slow > 1000ms) | up | down (non-2xx)
+            if ($ms > 1000 && $response->successful()) {
+                $status = 'unhealth';
+            } elseif ($response->successful()) {
+                $status = 'up';
+            } else {
+                $status = 'down';
+            }
 
             $check = $link->checks()->create([
-                'status' => $response->successful() ? 'up' : 'down',
+                'status' => $status,
                 'http_status' => $response->status(),
                 'response_time_ms' => $ms,
             ]);

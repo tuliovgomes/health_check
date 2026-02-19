@@ -28,7 +28,7 @@ class LinkController
         $data = $request->validate([
             'url' => ['required', 'url', 'max:2048'],
             'title' => ['nullable', 'string', 'max:255'],
-            'check_interval' => ['nullable', 'integer', 'in:1,5,25,30,60'],
+            'check_interval' => ['nullable', 'integer', 'in:1,5,15,30,60'],
         ]);
 
         $link = $request->user()->links()->create([

@@ -9,8 +9,12 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule): void
     {
-        // Run health checks every minute (dispatches jobs)
-        $schedule->command('health:check')->everyMinute();
+        // Run health checks for each interval separately (and limit work per schedule)
+        $schedule->command('health:check 1')->everyMinute();
+        $schedule->command('health:check 5')->everyFiveMinutes();
+        $schedule->command('health:check 15')->everyFifteenMinutes();
+        $schedule->command('health:check 30')->everyThirtyMinutes();
+        $schedule->command('health:check 60')->hourly();
 
         // Prune old check history daily
         $schedule->command('health:prune')->daily();

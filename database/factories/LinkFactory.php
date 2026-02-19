@@ -12,7 +12,7 @@ class LinkFactory extends Factory
 
     public function definition(): array
     {
-        $intervals = [1, 5, 25, 30, 60];
+        $intervals = [1, 5, 15, 30, 60];
 
         return [
             'user_id' => null,

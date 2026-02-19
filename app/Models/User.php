@@ -11,7 +11,15 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable, \Laravel\Cashier\Billable; 
+
+    /**
+     * User has many Links (for plans quota enforcement)
+     */
+    public function links()
+    {
+        return $this->hasMany(\App\Models\Link::class);
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -22,6 +30,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'plan',
+        'links_quota',
     ];
 
     /**
@@ -34,6 +44,9 @@ class User extends Authenticatable
         'two_factor_secret',
         'two_factor_recovery_codes',
         'remember_token',
+        'stripe_id',
+        'pm_type',
+        'pm_last_four',
     ];
 
     /**
@@ -47,6 +60,45 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'trial_ends_at' => 'datetime',
+            'links_quota' => 'integer',
+            'plan' => 'string',
         ];
+    }
+
+    /**
+     * Check if user is on the given plan key.
+     */
+    public function isOnPlan(string $plan): bool
+    {
+        return $this->plan === $plan;
+    }
+
+    /**
+     * Returns remaining quota (null = unlimited).
+     */
+    public function linksQuotaRemaining(): ?int
+    {
+        if (is_null($this->links_quota)) {
+            return null;
+        }
+
+        $used = $this->links()->count();
+
+        return max(0, $this->links_quota - $used);
+    }
+
+    /**
+     * Assign a plan to the user and set the links_quota accordingly.
+     */
+    public function assignPlan(string $planKey): self
+    {
+        $plan = config('plans.plans.' . $planKey);
+
+        $this->plan = $planKey;
+        $this->links_quota = $plan['links_quota'] ?? null;
+        $this->save();
+
+        return $this;
     }
 }

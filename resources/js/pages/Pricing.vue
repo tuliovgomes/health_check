@@ -7,7 +7,7 @@
         <div v-for="(plan, key) in plans" :key="key" class="card p-4">
           <h3 class="font-bold">{{ plan.name }}</h3>
           <p class="text-sm mt-2">{{ plan.links_quota === null ? 'Sem limites' : plan.links_quota + ' links' }}</p>
-          <p class="mt-4 text-2xl">{{ plan.price === 0 ? 'Gratuito' : `$${plan.price}/mês` }}</p>
+          <p class="mt-4 text-2xl">{{ plan.price === 0 ? 'Gratuito' : (new Intl.NumberFormat('pt-BR', { style: 'currency', currency: plan.currency ?? 'BRL' }).format(plan.price) + '/mês') }}</p>
 
           <div class="mt-4">
             <button

@@ -16,7 +16,7 @@ return [
             'key' => 'free',
             'name' => 'Free',
             'price' => 0.00,
-            'currency' => 'USD',
+            'currency' => 'BRL',
             'monthly' => true,
             'links_quota' => 5,
             'stripe_price_id' => null, // set your Stripe price id to enable real billing
@@ -26,7 +26,7 @@ return [
             'key' => 'starter',
             'name' => 'Starter',
             'price' => 3.99,
-            'currency' => 'USD',
+            'currency' => 'BRL',
             'monthly' => true,
             'links_quota' => 25,
             'stripe_price_id' => env('STRIPE_PRICE_STARTER', null),
@@ -36,7 +36,7 @@ return [
             'key' => 'unlimited',
             'name' => 'Unlimited',
             'price' => 9.90,
-            'currency' => 'USD',
+            'currency' => 'BRL',
             'monthly' => true,
             'links_quota' => null, // null = unlimited
             'stripe_price_id' => env('STRIPE_PRICE_UNLIMITED', null),

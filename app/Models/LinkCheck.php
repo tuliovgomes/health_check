@@ -17,6 +17,10 @@ class LinkCheck extends Model
         'error',
     ];
 
+    protected $casts = [
+        'status' => \App\Enums\LinkStatus::class,
+    ];
+
     public function link()
     {
         return $this->belongsTo(Link::class);

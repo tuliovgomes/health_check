@@ -4,11 +4,15 @@ namespace App\Services;
 
 use App\Models\Link;
 use App\Models\LinkCheck;
+use App\Enums\LinkStatus;
+use App\Traits\DeterminesHealthStatus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class HealthCheckService
 {
+    use DeterminesHealthStatus;
+
     /**
      * Perform a health check for the given Link and persist a LinkCheck record.
      */
@@ -25,17 +29,11 @@ class HealthCheckService
                 ? (int) $response->header('X-Response-Time')
                 : $msMeasured;
 
-            // status: down (error) | unhealth (slow > 1000ms) | up | down (non-2xx)
-            if ($ms > 1000 && $response->successful()) {
-                $status = 'unhealth';
-            } elseif ($response->successful()) {
-                $status = 'up';
-            } else {
-                $status = 'down';
-            }
+            // determine status via trait (rules map) — returns LinkStatus enum
+            $statusEnum = $this->determineHealthStatusFromResponse($ms, $response->successful(), $response->status());
 
             $check = $link->checks()->create([
-                'status' => $status,
+                'status' => $statusEnum->value,
                 'http_status' => $response->status(),
                 'response_time_ms' => $ms,
             ]);
@@ -43,7 +41,7 @@ class HealthCheckService
             $ms = (int) round((microtime(true) - $start) * 1000);
 
             $check = $link->checks()->create([
-                'status' => 'down',
+                'status' => LinkStatus::DOWN->value,
                 'http_status' => null,
                 'response_time_ms' => $ms,
                 'error' => Str::limit($e->getMessage(), 1000),

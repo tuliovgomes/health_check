@@ -6,6 +6,18 @@
       <form @submit.prevent="create" class="mt-4 space-y-2">
         <input v-model="form.url" placeholder="https://example.com" class="input" />
         <input v-model="form.title" placeholder="Título (opcional)" class="input" />
+
+        <div class="flex gap-2 items-center">
+          <label class="text-sm">Intervalo de verificação:</label>
+          <select v-model.number="form.check_interval" class="input w-48">
+            <option :value="1">1 minuto</option>
+            <option :value="5">5 minutos</option>
+            <option :value="25">25 minutos</option>
+            <option :value="30">30 minutos</option>
+            <option :value="60">1 hora</option>
+          </select>
+        </div>
+
         <button class="btn btn-primary">Criar link</button>
       </form>
 
@@ -17,6 +29,14 @@
               <div>
                 <div class="font-semibold">{{ link.title || link.code }}</div>
                 <div class="text-sm text-muted">{{ link.url }}</div>
+                <div class="text-xs text-muted mt-1">Última verificação: {{ link.last_checked_at || '—' }} • Intervalo: {{ link.check_interval }} min</div>
+
+                <div v-if="link.checks && link.checks.length" class="mt-2 text-xs">
+                  <div class="font-medium">Histórico (últimos {{ link.checks.length }}):</div>
+                  <ul class="mt-1">
+                    <li v-for="c in link.checks" :key="c.id">[{{ c.created_at }}] {{ c.status }} — {{ c.http_status || '—' }} — {{ c.response_time_ms || '—' }}ms</li>
+                  </ul>
+                </div>
               </div>
               <div>
                 <button class="btn btn-danger" @click.prevent="remove(link.id)">Remover</button>

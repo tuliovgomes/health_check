@@ -11,7 +11,10 @@ class LinkController
 {
     public function index(Request $request)
     {
-        $links = $request->user()->links()->latest()->paginate(15);
+        $links = $request->user()->links()
+            ->with(['checks' => fn($q) => $q->limit(5)])
+            ->latest()
+            ->paginate(15);
 
         if (app()->runningUnitTests() || $request->wantsJson()) {
             return response()->json(['links' => $links]);
@@ -25,11 +28,13 @@ class LinkController
         $data = $request->validate([
             'url' => ['required', 'url', 'max:2048'],
             'title' => ['nullable', 'string', 'max:255'],
+            'check_interval' => ['nullable', 'integer', 'in:1,5,25,30,60'],
         ]);
 
         $link = $request->user()->links()->create([
             'url' => $data['url'],
             'title' => $data['title'] ?? null,
+            'check_interval' => $data['check_interval'] ?? 1,
             'code' => Str::random(8),
         ]);
 

@@ -12,11 +12,15 @@ class LinkFactory extends Factory
 
     public function definition(): array
     {
+        $intervals = [1, 5, 25, 30, 60];
+
         return [
             'user_id' => null,
             'title' => $this->faker->sentence(3),
             'url' => $this->faker->url(),
             'code' => Str::random(8),
+            'check_interval' => $this->faker->randomElement($intervals),
+            'last_checked_at' => null,
         ];
     }
 }

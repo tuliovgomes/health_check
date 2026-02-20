@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Link2 } from 'lucide-vue-next';
+import { Cable, Folder, LayoutGrid, Link2 } from 'lucide-vue-next';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -17,6 +17,7 @@ import { type NavItem } from '@/types';
 import AppLogo from './AppLogo.vue';
 import { dashboard } from '@/routes';
 import links from '@/routes/links';
+import integrations from '@/routes/integrations';
 
 const mainNavItems: NavItem[] = [
     {
@@ -28,6 +29,11 @@ const mainNavItems: NavItem[] = [
         title: 'Links',
         href: links.index().url,
         icon: Link2,
+    },
+    {
+        title: 'Integrations',
+        href: integrations.index().url,
+        icon: Cable,
     }
 ];
 

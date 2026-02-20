@@ -21,6 +21,7 @@ return [
             'monthly' => true,
             'links_quota' => 5,
             'logs_quota' => 7,
+            'integrations_quota' => 1,
             'stripe_price_id' => null, // set your Stripe price id to enable real billing
             'notifications' => [
                 'channels' => [
@@ -29,8 +30,10 @@ return [
                     'discord' => false
                 ],
                 'events' => [
-                    'down' => true, 
-                    'unhealth' => false
+                    'link_down' => true, 
+                    'link_error' => true,
+                    'link_up' => false,
+                    'link_slow' => false
                 ],
             ],
         ],
@@ -44,6 +47,7 @@ return [
             'monthly' => true,
             'links_quota' => 25,
             'logs_quota' => 30,
+            'integrations_quota' => 3,
             'stripe_price_id' => env('STRIPE_PRICE_STARTER', null),
             'notifications' => [
                 'channels' => [
@@ -52,8 +56,10 @@ return [
                     'discord' => true
                 ],
                 'events' => [
-                    'down' => true, 
-                    'unhealth' => false
+                    'link_down' => true, 
+                    'link_error' => true,
+                    'link_up' => false,
+                    'link_slow' => false
                 ],
             ],
         ],
@@ -67,6 +73,7 @@ return [
             'monthly' => true,
             'links_quota' => null, // null = unlimited
             'logs_quota' => 365,
+            'integrations_quota' => null,
             'stripe_price_id' => env('STRIPE_PRICE_UNLIMITED', null),
             'notifications' => [
                 'channels' => [
@@ -75,8 +82,10 @@ return [
                     'discord' => true
                 ],
                 'events' => [
-                    'down' => true, 
-                    'unhealth' => true
+                    'link_down' => true, 
+                    'link_error' => true,
+                    'link_up' => true,
+                    'link_slow' => true
                 ],
             ],
         ],

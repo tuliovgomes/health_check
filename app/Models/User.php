@@ -22,6 +22,14 @@ class User extends Authenticatable
     }
 
     /**
+     * User has many Integrations
+     */
+    public function integrations()
+    {
+        return $this->hasMany(\App\Models\Integration::class);
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>

@@ -13,6 +13,11 @@ enum Plan: string
         return config('plans.plans')[$this->value]['links_quota'] ?? null;
     }
 
+    public function integrationsQuota(): ?int
+    {
+        return config('plans.plans')[$this->value]['integrations_quota'] ?? null;
+    }
+
     public function price(): float
     {
         return (float) (config('plans.plans')[$this->value]['price'] ?? 0);

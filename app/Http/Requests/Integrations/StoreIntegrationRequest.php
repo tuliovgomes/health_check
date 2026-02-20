@@ -28,6 +28,7 @@ class StoreIntegrationRequest extends FormRequest
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', Rule::enum(IntegrationType::class)],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
             'events' => ['required', 'array', 'min:1'],
             'events.*' => [Rule::enum(EventType::class)],
             'metadata' => ['sometimes', 'array'],

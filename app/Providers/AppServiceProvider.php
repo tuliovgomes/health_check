@@ -36,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
             $router = $this->app->make(\Illuminate\Routing\Router::class);
             $router->aliasMiddleware('ensure.link.belongs', \App\Http\Middleware\EnsureLinkBelongsToUser::class);
             $router->aliasMiddleware('ensure.within.links.quota', \App\Http\Middleware\EnsureWithinLinksQuota::class);
+            $router->aliasMiddleware('ensure.integration.belongs', \App\Http\Middleware\EnsureIntegrationBelongsToUser::class);
         } catch (\Throwable $e) {
             // noop - keep boot resilient in environments where router isn't available yet
         }

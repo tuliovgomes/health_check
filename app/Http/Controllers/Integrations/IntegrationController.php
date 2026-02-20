@@ -11,6 +11,11 @@ use Illuminate\Http\Request;
 
 class IntegrationController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('ensure.integration.belongs')->only(['show', 'update', 'destroy', 'test']);
+    }
+
     /**
      * Display a listing of the user's integrations.
      */
@@ -72,11 +77,6 @@ class IntegrationController extends Controller
      */
     public function show(Request $request, Integration $integration): JsonResponse
     {
-        // Authorize
-        if ($integration->user_id !== $request->user()->id) {
-            abort(403, 'Você não tem permissão para visualizar esta integração.');
-        }
-
         return response()->json([
             'data' => [
                 'id' => $integration->id,
@@ -127,11 +127,6 @@ class IntegrationController extends Controller
      */
     public function destroy(Request $request, Integration $integration): JsonResponse
     {
-        // Authorize
-        if ($integration->user_id !== $request->user()->id) {
-            abort(403, 'Você não tem permissão para remover esta integração.');
-        }
-
         $integration->delete();
 
         return response()->json([
@@ -144,11 +139,6 @@ class IntegrationController extends Controller
      */
     public function test(Request $request, Integration $integration): JsonResponse
     {
-        // Authorize
-        if ($integration->user_id !== $request->user()->id) {
-            abort(403, 'Você não tem permissão para testar esta integração.');
-        }
-
         try {
             $service = app(\App\Services\Integrations\IntegrationNotificationService::class);
             $service->sendTestNotification($integration);

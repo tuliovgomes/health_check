@@ -217,20 +217,52 @@ async function save() {
         }
         if (msgs.length) message = msgs.join(' ')
       }
-      alert(message)
+      try {
+        const Swal = await import('sweetalert2').then((m) => m.default)
+        await Swal.fire({
+          title: 'Erro de Validação',
+          text: message,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        })
+      } catch (e) {
+        alert(message)
+      }
       return
     }
 
     if (!res.ok) {
       const json = await res.json().catch(() => ({}))
-      alert(json.message || 'Erro ao salvar integração')
+      const errorMessage = json.message || 'Erro ao salvar integração'
+      try {
+        const Swal = await import('sweetalert2').then((m) => m.default)
+        await Swal.fire({
+          title: 'Erro',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        })
+      } catch (e) {
+        alert(errorMessage)
+      }
       return
     }
 
     const json = await res.json()
     emit('saved', json.data)
   } catch (e) {
-    alert('Erro ao salvar integração: ' + (e instanceof Error ? e.message : ''))
+    const errorMessage = 'Erro ao salvar integração: ' + (e instanceof Error ? e.message : '')
+    try {
+      const Swal = await import('sweetalert2').then((m) => m.default)
+      await Swal.fire({
+        title: 'Erro',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      })
+    } catch (err) {
+      alert(errorMessage)
+    }
   }
 }
 </script>

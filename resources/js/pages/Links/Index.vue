@@ -42,33 +42,9 @@
         </div>
       </div>
 
-      <!-- Modal -->
-      <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
-        <div class="absolute inset-0 bg-black/60" @click="closeModal()"></div>
-        <div class="relative w-full max-w-lg rounded-lg bg-slate-800 p-6 ring-1 ring-white/5">
-          <h3 class="text-lg font-semibold text-slate-100">Novo link</h3>
-          <form @submit.prevent="create" class="mt-4 space-y-3">
-            <input v-model="form.url" placeholder="https://example.com" class="w-full rounded-md bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm text-slate-100" />
-            <input v-model="form.title" placeholder="Título (opcional)" class="w-full rounded-md bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm text-slate-100" />
-            <div class="flex items-center gap-3">
-              <label class="text-sm text-slate-300">Intervalo</label>
-              <select v-model.number="form.check_interval" class="rounded-md bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm text-slate-100">
-                <option :value="1">1 minuto</option>
-                <option :value="5">5 minutos</option>
-                <option :value="15">15 minutos</option>
-                <option :value="30">30 minutos</option>
-                <option :value="60">1 hora</option>
-              </select>
-            </div>
-            <div class="flex justify-end gap-2">
-              <button type="button" @click="closeModal()" class="rounded-md bg-slate-700 px-3 py-2 text-sm text-slate-200">Cancelar</button>
-              <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white">Criar link</button>
-            </div>
-          </form>
-        </div>
-      </div>
     </div>
-    <LinkChecksModal v-if="showChecksModal" :link-id="selectedLinkId" @close="showChecksModal=false; selectedLinkId=null" />
+    <CreateLinkModal v-if="showModal" @close="showModal = false" @created="handleLinkCreated" @error="handleLinkError" />
+    <LinkChecksModal v-if="showChecksModal && selectedLinkId !== null" :link-id="selectedLinkId" @close="showChecksModal=false; selectedLinkId=null" />
 
     <div v-if="toast.visible" class="hc-toast">
       <div :class="['rounded-md p-3 shadow-lg', toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white']" role="alert">
@@ -83,13 +59,13 @@ import { ref } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { usePage } from '@inertiajs/vue3'
 import { Trash, Activity } from 'lucide-vue-next';
-import LinkChecksModal from '@/components/LinkChecksModal.vue'
+import LinkChecksModal from './LinkChecksModal.vue'
+import CreateLinkModal from './CreateLinkModal.vue'
 
 const page = usePage()
 const rawProps = (page.props as any)?.value ?? (page.props as any) ?? {}
 const links = ref(rawProps.links ?? { data: [] })
 
-const form = ref({ url: '', title: '', check_interval: 5 })
 const showModal = ref(false)
 const showChecksModal = ref(false)
 const selectedLinkId = ref<number | null>(null)
@@ -103,83 +79,26 @@ function showToast(message: string, type: 'success' | 'error' = 'success', timeo
   toastTimer = window.setTimeout(() => { toast.value.visible = false }, timeout)
 }
 
-function closeModal() {
-  showModal.value = false
-  form.value.url = ''
-  form.value.title = ''
-  form.value.check_interval = 5
-}
 
 function openChecks(id: number) {
   selectedLinkId.value = id
   showChecksModal.value = true
 }
 
+function handleLinkCreated(link: any) {
+  links.value.data = links.value.data || []
+  links.value.data.unshift(link)
+  showModal.value = false
+  showToast('Link criado com sucesso', 'success')
+}
+
+function handleLinkError(message: string) {
+  showToast(message, 'error')
+}
+
 function getCookie(name: string) {
   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
   return match ? decodeURIComponent(match[2]) : null
-}
-
-async function create() {
-  try {
-    // resolve CSRF token safely from meta tag or XSRF cookie
-    const metaEl = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null
-    const csrfToken = metaEl ? metaEl.getAttribute('content') : (getCookie('XSRF-TOKEN') ?? '')
-    const headers = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken ?? '', 'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') ?? '' }
-
-    const res = await fetch('/links', {
-      method: 'POST',
-      headers,
-      credentials: 'include',
-      body: JSON.stringify(form.value),
-    })
-
-    if (res.status === 302 || res.status === 419) {
-      showToast('Sessão expirada. Por favor, faça login novamente.', 'error')
-      window.location.href = '/login'
-      return
-    }
-
-    if (res.status === 422) {
-      const json = await res.json().catch(() => null)
-      // build a friendly message from validation errors
-      let message = json?.message ?? 'Validação falhou.'
-      if (json?.errors && typeof json.errors === 'object') {
-        const msgs: string[] = []
-        for (const k of Object.keys(json.errors)) {
-          const arr = json.errors[k]
-          if (Array.isArray(arr)) msgs.push(...arr)
-        }
-        if (msgs.length) message = msgs.join(' ')
-      }
-      showToast(message, 'error')
-      return
-    }
-
-    if (!res.ok) {
-      const json = await res.json().catch(() => ({}))
-      showToast(json.message || 'Erro', 'error')
-      return
-    }
-
-    const json = await res.json().catch(() => null)
-    if (json && json.data) {
-      // push new link into local list
-      links.value.data = links.value.data || []
-      links.value.data.unshift(json.data)
-    } else {
-      // fallback: reload
-      location.reload()
-    }
-
-    form.value.url = ''
-    form.value.title = ''
-    form.value.check_interval = 5
-    showModal.value = false
-    showToast('Link criado com sucesso', 'success')
-  } catch (e) {
-    alert('Erro ao criar link ' + (e instanceof Error ? e.message : ''))
-  }
 }
 
 async function remove(id: number) {

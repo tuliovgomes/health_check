@@ -62,14 +62,23 @@ class LinkController extends Controller
             $checks = $link->checks()->latest()->paginate($perPage);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('LinkController@show checks load failed', ['message' => $e->getMessage()]);
-            $checks = collect([]);
+            // Return empty pagination structure on error
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load checks',
+                'data' => [
+                    'link' => $link,
+                    'checks' => [
+                        'data' => [],
+                        'current_page' => 1,
+                        'last_page' => 1,
+                        'per_page' => $perPage,
+                        'total' => 0
+                    ]
+                ]
+            ]);
         }
 
-        if (app()->runningUnitTests() || $request->wantsJson()) {
-            return response()->json(['success' => true, 'data' => ['link' => $link, 'checks' => $checks]]);
-        }
-
-        // fallback: redirect back to index if called from browser
-        return redirect()->route('links.index');
+        return response()->json(['success' => true, 'data' => ['link' => $link, 'checks' => $checks]]);
     }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3';
-import { LogOut, Settings } from 'lucide-vue-next';
+import { LogOut, Settings, Receipt } from 'lucide-vue-next';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -9,8 +9,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import UserInfo from '@/components/UserInfo.vue';
 import type { User } from '@/types';
-import { logout } from '@/routes';
+import { logout, plans } from '@/routes';
 import { edit } from '@/routes/profile';
+
 
 type Props = {
     user: User;
@@ -35,6 +36,12 @@ defineProps<Props>();
             <Link class="block w-full cursor-pointer" :href="edit()" prefetch>
                 <Settings class="mr-2 h-4 w-4" />
                 Settings
+            </Link>
+        </DropdownMenuItem>
+         <DropdownMenuItem :as-child="true">
+            <Link class="block w-full cursor-pointer" :href="plans().url" prefetch>
+                <Receipt class="mr-2 h-4 w-4" />
+                Planos
             </Link>
         </DropdownMenuItem>
     </DropdownMenuGroup>

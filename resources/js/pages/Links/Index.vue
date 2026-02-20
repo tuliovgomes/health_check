@@ -52,8 +52,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Inertia } from '@inertiajs/inertia'
-import { usePage } from '@inertiajs/inertia-vue3'
+import { usePage } from '@inertiajs/vue3'
 
 const props = usePage().props.value
 const links = ref(props.links ?? { data: [] })

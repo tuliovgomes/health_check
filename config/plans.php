@@ -19,6 +19,7 @@ return [
             'currency' => 'BRL',
             'monthly' => true,
             'links_quota' => 5,
+            'logs_quota' => 7,
             'stripe_price_id' => null, // set your Stripe price id to enable real billing
         ],
 
@@ -29,6 +30,7 @@ return [
             'currency' => 'BRL',
             'monthly' => true,
             'links_quota' => 25,
+            'logs_quota' => 30,
             'stripe_price_id' => env('STRIPE_PRICE_STARTER', null),
         ],
 
@@ -39,6 +41,7 @@ return [
             'currency' => 'BRL',
             'monthly' => true,
             'links_quota' => null, // null = unlimited
+            'logs_quota' => 365,
             'stripe_price_id' => env('STRIPE_PRICE_UNLIMITED', null),
         ],
     ],

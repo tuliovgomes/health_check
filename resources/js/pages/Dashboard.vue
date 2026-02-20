@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
-import { dashboard, plans, links } from '@/routes';
+import { dashboard } from '@/routes';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,13 +20,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
-            <div class="flex items-center justify-between gap-4">
-                <div class="flex gap-2">
-                    <a :href="plans().url" class="btn btn-outline">Planos</a>
-                    <a :href="links().url" class="btn btn-outline">Meus links</a>
-                </div>
-            </div>
-
             <div class="grid auto-rows-min gap-4 md:grid-cols-3">
                 <div
                     class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"

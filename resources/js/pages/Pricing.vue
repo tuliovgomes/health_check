@@ -142,7 +142,7 @@ async function subscribe(planKey: string) {
         ...(xsrf ? { 'X-XSRF-TOKEN': xsrf } : {}),
         'X-Requested-With': 'XMLHttpRequest'
       },
-      credentials: 'same-origin',
+      credentials: 'include',
       body: JSON.stringify({ plan: planKey })
     })
 

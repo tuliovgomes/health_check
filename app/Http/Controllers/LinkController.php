@@ -6,6 +6,8 @@ use App\Models\Link;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class LinkController
 {
@@ -25,20 +27,33 @@ class LinkController
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'url' => ['required', 'url', 'max:2048'],
-            'title' => ['nullable', 'string', 'max:255'],
-            'check_interval' => ['nullable', 'integer', 'in:1,5,15,30,60'],
-        ]);
+        Log::info('LinkController@store called', ['ip' => $request->ip(), 'cookies' => $request->cookies->all(), 'headers' => $request->headers->all()]);
+        try {
+            $data = $request->validate([
+                'url' => ['required', 'url', 'max:2048'],
+                'title' => ['nullable', 'string', 'max:255'],
+                'check_interval' => ['nullable', 'integer', 'in:1,5,15,30,60'],
+            ]);
+        } catch (ValidationException $e) {
+            Log::warning('LinkController@store validation failed', ['errors' => $e->errors()]);
+            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        }
 
-        $link = $request->user()->links()->create([
-            'url' => $data['url'],
-            'title' => $data['title'] ?? null,
-            'check_interval' => $data['check_interval'] ?? 1,
-            'code' => Str::random(8),
-        ]);
+        try {
+            $link = $request->user()->links()->create([
+                'url' => $data['url'],
+                'title' => $data['title'] ?? null,
+                'check_interval' => $data['check_interval'] ?? 1,
+                'code' => Str::random(8),
+            ]);
 
-        return response()->json(['success' => true, 'data' => $link], 201);
+            Log::info('Link created', ['id' => $link->id, 'user_id' => $request->user()->id, 'url' => $link->url]);
+
+            return response()->json(['success' => true, 'data' => $link], 201);
+        } catch (\Throwable $e) {
+            Log::error('LinkController@store exception', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['success' => false, 'message' => 'Server error while creating link'], 500);
+        }
     }
 
     public function destroy(Request $request, Link $link)

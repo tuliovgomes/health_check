@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="container">
+    <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
       <div class="flex items-center justify-between">
         <h1 class="mt-6 text-2xl font-semibold text-slate-100">Meus Links</h1>
         <button @click="showModal = true" class="mt-6 inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Adicionar link</button>

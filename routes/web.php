@@ -25,6 +25,7 @@ Route::post('/subscribe', [PricingController::class, 'subscribe'])->middleware('
 
 Route::middleware('auth')->group(function () {
     Route::get('/links', [LinkController::class, 'index'])->name('links.index');
+    Route::get('/links/{link}', [LinkController::class, 'show'])->name('links.show');
     Route::post('/links', [LinkController::class, 'store'])->middleware(EnsureWithinLinksQuota::class)->name('links.store');
     Route::delete('/links/{link}', [LinkController::class, 'destroy'])->name('links.destroy');
 });

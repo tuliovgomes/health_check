@@ -28,7 +28,7 @@
               <button title="Remover link" aria-label="Remover link" class="inline-flex items-center rounded-md bg-rose-600 py-1 px-1 text-sm font-medium text-white hover:bg-rose-500" @click.prevent="remove(link.id)">
                 <Trash class=" h-4 w-4" />
               </button>
-              <button title="Ver atividade" aria-label="Ver atividade" class="inline-flex items-center rounded-md bg-indigo-600 py-1 px-1 text-sm font-medium text-white hover:bg-indigo-500">
+              <button @click.prevent="openChecks(link.id)" title="Ver atividade" aria-label="Ver atividade" class="inline-flex items-center rounded-md bg-indigo-600 py-1 px-1 text-sm font-medium text-white hover:bg-indigo-500">
                 <Activity class=" h-4 w-4" />
               </button>
             </div>
@@ -68,6 +68,8 @@
         </div>
       </div>
     </div>
+    <LinkChecksModal v-if="showChecksModal" :link-id="selectedLinkId" @close="showChecksModal=false; selectedLinkId=null" />
+
     <div v-if="toast.visible" class="hc-toast">
       <div :class="['rounded-md p-3 shadow-lg', toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white']" role="alert">
         <p class="text-sm">{{ toast.message }}</p>
@@ -81,6 +83,7 @@ import { ref } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { usePage } from '@inertiajs/vue3'
 import { Trash, Activity } from 'lucide-vue-next';
+import LinkChecksModal from '@/components/LinkChecksModal.vue'
 
 const page = usePage()
 const rawProps = (page.props as any)?.value ?? (page.props as any) ?? {}
@@ -88,6 +91,8 @@ const links = ref(rawProps.links ?? { data: [] })
 
 const form = ref({ url: '', title: '', check_interval: 5 })
 const showModal = ref(false)
+const showChecksModal = ref(false)
+const selectedLinkId = ref<number | null>(null)
 // toast state
 const toast = ref({ visible: false, message: '', type: 'success' })
 let toastTimer: number | undefined = undefined
@@ -103,6 +108,11 @@ function closeModal() {
   form.value.url = ''
   form.value.title = ''
   form.value.check_interval = 5
+}
+
+function openChecks(id: number) {
+  selectedLinkId.value = id
+  showChecksModal.value = true
 }
 
 function getCookie(name: string) {

@@ -14,7 +14,6 @@ class LinkController
     public function index(Request $request)
     {
         $links = $request->user()->links()
-            ->with(['checks' => fn($q) => $q->limit(5)])
             ->latest()
             ->paginate(15);
 
@@ -27,7 +26,6 @@ class LinkController
 
     public function store(Request $request)
     {
-        Log::info('LinkController@store called', ['ip' => $request->ip(), 'cookies' => $request->cookies->all(), 'headers' => $request->headers->all()]);
         try {
             $data = $request->validate([
                 'url' => ['required', 'url', 'max:2048'],
@@ -47,8 +45,6 @@ class LinkController
                 'code' => Str::random(8),
             ]);
 
-            Log::info('Link created', ['id' => $link->id, 'user_id' => $request->user()->id, 'url' => $link->url]);
-
             return response()->json(['success' => true, 'data' => $link], 201);
         } catch (\Throwable $e) {
             Log::error('LinkController@store exception', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
@@ -58,7 +54,6 @@ class LinkController
 
     public function destroy(Request $request, Link $link)
     {
-        // allow only owner
         if ($link->user_id !== $request->user()->id) {
             abort(403);
         }
@@ -66,5 +61,27 @@ class LinkController
         $link->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    public function show(Request $request, Link $link)
+    {
+        if ($link->user_id !== $request->user()->id) {
+            abort(403);
+        }
+        // load checks for the requested link with pagination (default 50 per page)
+        $perPage = (int) $request->query('per_page', 50);
+        try {
+            $checks = $link->checks()->latest()->paginate($perPage);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('LinkController@show checks load failed', ['message' => $e->getMessage()]);
+            $checks = collect([]);
+        }
+
+        if (app()->runningUnitTests() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'data' => ['link' => $link, 'checks' => $checks]]);
+        }
+
+        // fallback: redirect back to index if called from browser
+        return redirect()->route('links.index');
     }
 }

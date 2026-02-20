@@ -25,8 +25,11 @@
             <div class="col-span-2 text-sm text-slate-300">{{ link.check_interval }} min</div>
             <div class="col-span-1 text-sm text-slate-300">{{ link.last_checked_at ? new Date(link.last_checked_at).toLocaleString() : '—' }}</div>
             <div class="col-span-1 text-right">
-              <button class="inline-flex items-center rounded-md bg-rose-600 py-1 px-1 text-sm font-medium text-white hover:bg-rose-500" @click.prevent="remove(link.id)">
+              <button title="Remover link" aria-label="Remover link" class="inline-flex items-center rounded-md bg-rose-600 py-1 px-1 text-sm font-medium text-white hover:bg-rose-500" @click.prevent="remove(link.id)">
                 <Trash class=" h-4 w-4" />
+              </button>
+              <button title="Ver atividade" aria-label="Ver atividade" class="inline-flex items-center rounded-md bg-indigo-600 py-1 px-1 text-sm font-medium text-white hover:bg-indigo-500">
+                <Activity class=" h-4 w-4" />
               </button>
             </div>
             <div v-if="link.checks && link.checks.length" class="col-span-12 mt-2 px-2 text-xs text-slate-400">
@@ -77,7 +80,7 @@
 import { ref } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { usePage } from '@inertiajs/vue3'
-import { Trash } from 'lucide-vue-next';
+import { Trash, Activity } from 'lucide-vue-next';
 
 const page = usePage()
 const rawProps = (page.props as any)?.value ?? (page.props as any) ?? {}

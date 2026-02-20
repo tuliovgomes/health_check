@@ -14,7 +14,6 @@ class EnsureWithinLinksQuota
      */
     public function handle(Request $request, Closure $next): Response
     {
-        Log::info('EnsureWithinLinksQuota middleware triggered', ['ip' => $request->ip(), 'user_id' => $request->user()?->id ?? null, 'cookies' => $request->cookies->all()]);
         $user = $request->user();
 
         if (! $user) {

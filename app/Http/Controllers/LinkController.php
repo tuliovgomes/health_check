@@ -3,14 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Link;
+use App\Http\Requests\StoreLinkRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
-class LinkController
+class LinkController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('ensure.link.belongs')->only(['show', 'destroy']);
+        $this->middleware('ensure.within.links.quota')->only(['store']);
+    }
     public function index(Request $request)
     {
         $links = $request->user()->links()
@@ -24,18 +29,9 @@ class LinkController
         return Inertia::render('Links/Index', compact('links'));
     }
 
-    public function store(Request $request)
+    public function store(StoreLinkRequest $request)
     {
-        try {
-            $data = $request->validate([
-                'url' => ['required', 'url', 'max:2048'],
-                'title' => ['nullable', 'string', 'max:255'],
-                'check_interval' => ['nullable', 'integer', 'in:1,5,15,30,60'],
-            ]);
-        } catch (ValidationException $e) {
-            Log::warning('LinkController@store validation failed', ['errors' => $e->errors()]);
-            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $e->errors()], 422);
-        }
+        $data = $request->all();
 
         try {
             $link = $request->user()->links()->create([
@@ -54,10 +50,6 @@ class LinkController
 
     public function destroy(Request $request, Link $link)
     {
-        if ($link->user_id !== $request->user()->id) {
-            abort(403);
-        }
-
         $link->delete();
 
         return response()->json(['success' => true]);
@@ -65,10 +57,6 @@ class LinkController
 
     public function show(Request $request, Link $link)
     {
-        if ($link->user_id !== $request->user()->id) {
-            abort(403);
-        }
-        // load checks for the requested link with pagination (default 50 per page)
         $perPage = (int) $request->query('per_page', 50);
         try {
             $checks = $link->checks()->latest()->paginate($perPage);

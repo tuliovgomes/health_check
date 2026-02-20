@@ -24,6 +24,21 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->registerMiddlewareAliases();
+    }
+
+    /**
+     * Register app-specific middleware aliases.
+     */
+    private function registerMiddlewareAliases(): void
+    {
+        try {
+            $router = $this->app->make(\Illuminate\Routing\Router::class);
+            $router->aliasMiddleware('ensure.link.belongs', \App\Http\Middleware\EnsureLinkBelongsToUser::class);
+            $router->aliasMiddleware('ensure.within.links.quota', \App\Http\Middleware\EnsureWithinLinksQuota::class);
+        } catch (\Throwable $e) {
+            // noop - keep boot resilient in environments where router isn't available yet
+        }
     }
 
     /**

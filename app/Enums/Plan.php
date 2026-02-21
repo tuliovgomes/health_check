@@ -18,6 +18,11 @@ enum Plan: string
         return config('plans.plans')[$this->value]['integrations_quota'] ?? null;
     }
 
+    public function logsRetentionDays(): int
+    {
+        return (int) (config('plans.plans')[$this->value]['logs_quota'] ?? 7);
+    }
+
     public function price(): float
     {
         return (float) (config('plans.plans')[$this->value]['price'] ?? 0);

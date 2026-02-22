@@ -43,13 +43,16 @@
 
         <div v-else-if="form.type === 'slack'" class="space-y-3">
           <div>
-            <label class="block text-sm font-medium text-slate-300">Webhook URL</label>
-            <input v-model="form.channel_token" type="text" required class="mt-1 w-full rounded-md bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm text-slate-100" placeholder="https://hooks.slack.com/services/..." />
-            <p class="mt-1 text-xs text-slate-500">URL do webhook do Slack</p>
+            <label class="block text-sm font-medium text-slate-300">Bot Token</label>
+            <input v-model="form.token" type="text" :required="!isEditing || !form.has_token" class="mt-1 w-full rounded-md bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm text-slate-100" placeholder="xoxb-your-token" />
+            <p v-if="isEditing && form.has_token" class="mt-1 text-xs text-emerald-400">✓ Token configurado. Deixe em branco para manter o atual ou preencha para atualizar.</p>
+            <p v-else class="mt-1 text-xs text-slate-500">Token do bot Slack (Ex: xoxb-...)</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-300">Token (opcional)</label>
-            <input v-model="form.token" type="text" class="mt-1 w-full rounded-md bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm text-slate-100" placeholder="xoxb-..." />
+            <label class="block text-sm font-medium text-slate-300">Channel ID</label>
+            <input v-model="form.channel_token" type="text" :required="!isEditing || !form.has_channel_token" class="mt-1 w-full rounded-md bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm text-slate-100" placeholder="C1234567890" />
+            <p v-if="isEditing && form.has_channel_token" class="mt-1 text-xs text-emerald-400">✓ Channel ID configurado. Deixe em branco para manter o atual ou preencha para atualizar.</p>
+            <p v-else class="mt-1 text-xs text-slate-500">ID do canal do Slack</p>
           </div>
         </div>
 
@@ -140,6 +143,9 @@ const form = ref({
   user_token: '',
   channel_token: '',
   events: [] as string[],
+  has_token: false,
+  has_channel_token: false,
+  has_user_token: false,
 })
 
 // Preenche o form se estiver editando
@@ -153,6 +159,9 @@ watch(() => props.integration, (integration) => {
       user_token: '',
       channel_token: '',
       events: integration.events || [],
+      has_token: integration.has_token || false,
+      has_channel_token: integration.has_channel_token || false,
+      has_user_token: integration.has_user_token || false,
     }
   }
 }, { immediate: true })
@@ -187,8 +196,8 @@ async function save() {
     if (form.value.type === 'email') {
       payload.email = form.value.email
     } else if (form.value.type === 'slack') {
-      if (form.value.channel_token) payload.channel_token = form.value.channel_token
       if (form.value.token) payload.token = form.value.token
+      if (form.value.channel_token) payload.channel_token = form.value.channel_token
     } else if (form.value.type === 'discord') {
       if (form.value.token) payload.token = form.value.token
       if (form.value.user_token) payload.user_token = form.value.user_token

@@ -107,15 +107,19 @@ class IntegrationNotificationService
      */
     protected function sendSlackNotification(Integration $integration, array $message): void
     {
-        $channelToken = $integration->channel_token;
+        $token = $integration->token;
+        $channelId = $integration->channel_token;
         
-        if (!$channelToken) {
-            throw new \Exception('Channel token not configured for Slack integration');
+        if (!$token) {
+            throw new \Exception('Bot token not configured for Slack integration');
         }
 
-        $webhookUrl = $channelToken;
+        if (!$channelId) {
+            throw new \Exception('Channel ID not configured for Slack integration');
+        }
 
         $payload = [
+            'channel' => $channelId,
             'text' => $message['title'],
             'blocks' => [
                 [
@@ -138,10 +142,30 @@ class IntegrationNotificationService
             ],
         ];
 
-        $response = Http::post($webhookUrl, $payload);
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Content-Type' => 'application/json',
+        ])->post('https://slack.com/api/chat.postMessage', $payload);
 
         if (!$response->successful()) {
             throw new \Exception("Slack notification failed: {$response->body()}");
+        }
+
+        // Check Slack API response for errors
+        $responseData = $response->json();
+        if (!($responseData['ok'] ?? false)) {
+            $error = $responseData['error'] ?? 'Unknown error';
+            
+            $errorMessages = [
+                'missing_scope' => 'Bot token sem permissões necessárias. Adicione o scope "chat:write" nas configurações do Slack App (OAuth & Permissions).',
+                'not_in_channel' => 'Bot não está no canal. Adicione o bot ao canal usando /invite @nome_do_bot',
+                'channel_not_found' => 'Canal não encontrado. Verifique se o Channel ID está correto.',
+                'invalid_auth' => 'Token inválido. Verifique se o Bot Token está correto e começa com "xoxb-".',
+                'token_revoked' => 'Token revogado. Gere um novo Bot Token nas configurações do Slack App.',
+            ];
+            
+            $message = $errorMessages[$error] ?? "Erro na API do Slack: {$error}";
+            throw new \Exception($message);
         }
     }
 

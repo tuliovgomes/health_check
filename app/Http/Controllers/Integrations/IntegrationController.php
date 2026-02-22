@@ -40,6 +40,9 @@ class IntegrationController extends Controller
                         ->map(fn ($event) => $event->label())
                         ->values()
                         ->all(),
+                    'has_token' => !empty($integration->token),
+                    'has_channel_token' => !empty($integration->channel_token),
+                    'has_user_token' => !empty($integration->user_token),
                     'last_notification_at' => $integration->last_notification_at,
                     'created_at' => $integration->created_at,
                     'updated_at' => $integration->updated_at,
@@ -90,6 +93,9 @@ class IntegrationController extends Controller
                     ->map(fn ($event) => $event->label())
                     ->values()
                     ->all(),
+                'has_token' => !empty($integration->token),
+                'has_channel_token' => !empty($integration->channel_token),
+                'has_user_token' => !empty($integration->user_token),
                 'metadata' => $integration->metadata,
                 'last_notification_at' => $integration->last_notification_at,
                 'created_at' => $integration->created_at,
@@ -103,7 +109,20 @@ class IntegrationController extends Controller
      */
     public function update(UpdateIntegrationRequest $request, Integration $integration): JsonResponse
     {
-        $integration->update($request->validated());
+        $data = $request->validated();
+        
+        // Remove campos de token vazios para manter os valores existentes
+        if (isset($data['token']) && empty($data['token'])) {
+            unset($data['token']);
+        }
+        if (isset($data['channel_token']) && empty($data['channel_token'])) {
+            unset($data['channel_token']);
+        }
+        if (isset($data['user_token']) && empty($data['user_token'])) {
+            unset($data['user_token']);
+        }
+        
+        $integration->update($data);
 
         return response()->json([
             'message' => 'Integração atualizada com sucesso.',

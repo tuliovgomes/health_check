@@ -42,8 +42,7 @@ class UpdateIntegrationRequest extends FormRequest
                 $rules['email'] = ['sometimes', 'email', 'max:255'];
             } elseif ($type === IntegrationType::SLACK) {
                 $rules['token'] = ['sometimes', 'string', 'max:500'];
-                $rules['channel_token'] = ['sometimes', 'string', 'max:500'];
-                $rules['user_token'] = ['sometimes', 'nullable', 'string', 'max:500'];
+                $rules['channel_token'] = ['sometimes', 'string', 'max:255'];
             } elseif ($type === IntegrationType::DISCORD) {
                 $rules['token'] = ['sometimes', 'string', 'max:500'];
                 $rules['user_token'] = ['sometimes', 'string', 'max:500'];
@@ -64,9 +63,9 @@ class UpdateIntegrationRequest extends FormRequest
             'events.array' => 'Os eventos devem ser fornecidos como uma lista.',
             'events.min' => 'Selecione pelo menos um evento para notificar.',
             'email.email' => 'Informe um e-mail válido.',
-            'token.string' => 'O token deve ser um texto válido.',
+            'token.string' => 'O token do bot deve ser um texto válido.',
             'user_token.string' => 'O token do usuário deve ser um texto válido.',
-            'channel_token.string' => 'O token do canal deve ser um texto válido.',
+            'channel_token.string' => 'O ID do canal deve ser um texto válido.',
         ];
     }
 }

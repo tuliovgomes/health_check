@@ -1,197 +1,361 @@
-🧠 GitHub Copilot Instructions – Laravel 12
-📌 Contexto do Projeto
+# GitHub Copilot Instructions – Laravel 12 + Vue 3 + TypeScript
 
-Este é um projeto Laravel 12 utilizando:
-PHP 8.3+
-MySQL
-Redis (cache + filas)
-Laravel Horizon
-Blade
-Bootstrap 5
-jQuery 3.x (legado)
-Vue 2 (componentes específicos)
-APIs RESTful com Laravel Sanctum
-O projeto segue princípios de Clean Code, SOLID e Service Layer.
+## 🧠 Project Context
 
-🧱 Arquitetura e Organização
-Controllers
-Devem ser finos
-Responsáveis apenas por:
-Receber Request
-Chamar Form Request
-Delegar para Services
-Retornar API Resources ou Views
-NÃO conter regra de negócio
-Services
-Conter toda a regra de negócio
-Devem ser injetados via DI
-Devem ser reutilizáveis
-Devem ser testáveis (unit tests)
-Form Requests
-Toda validação deve ficar em Form Requests
-NÃO validar diretamente no Controller
-DTOs
-Usar para transporte de dados entre camadas quando necessário
-Objetos imutáveis sempre que possível
-Repositories
-Utilizar apenas quando houver necessidade real de abstração
-Caso contrário, usar Eloquent diretamente nos Services
+This is a **Laravel 12** application using:
 
-🗂️ Estrutura de Pastas Esperada
+* PHP 8.3+
+* Vue 3 (Composition API)
+* TypeScript
+* Vite
+* Inertia.js
+* Multi-tenant architecture
+* REST APIs
+* Queues, Jobs, Events, and Listeners
+* Pest for testing
+
+Copilot must prioritize **clean architecture**, **SOLID principles**, **DDD-style separation**, and **testability**.
+
+---
+
+## 📁 Backend Architecture (Laravel)
+
+### Layers
+
+Controllers must be thin and delegate logic to:
+
+* `Actions` → Single responsibility business actions
+* `Services` → Complex business rules
+* `Repositories` → Data access abstraction (only when needed)
+* `DTOs` → Structured data transfer between layers
+* `Policies` → Authorization rules
+* `Form Requests` → Validation
+
+Avoid placing business logic inside controllers or models.
+
+---
+
+### Example Structure
+
+```
 app/
  ├── Actions/
  ├── DTOs/
- ├── Enums/
- ├── Events/
- ├── Exceptions/
- ├── Jobs/
- ├── Listeners/
  ├── Services/
- ├── Traits/
+ ├── Repositories/
+ ├── Policies/
+ ├── Jobs/
+ ├── Events/
+ ├── Listeners/
+ └── Http/
+      ├── Controllers/
+      ├── Requests/
+      └── Resources/
+```
 
-🔄 Filas e Jobs
+---
 
-Tudo que for pesado deve ser processado em Jobs
-Jobs devem implementar ShouldQueue
-Usar Redis como driver
-Garantir idempotência
-O método handle() deve apenas delegar para um Service
-Nomear Jobs com verbo de ação:
-ProcessUserAssessmentJob
-SendAssessmentEmailJob
+### Coding Standards
 
-📡 Padrão de APIs REST
-Responses padronizadas
+* Use **strict types** in PHP files
+* Prefer **constructor property promotion**
+* Use **readonly properties** where possible
+* Return **typed responses**
+* Use **API Resources** for JSON responses
+* Use **Enums** instead of string constants
+* Use **CarbonImmutable** for dates
+
+---
+
+### Queues & Jobs
+
+* Jobs must implement `ShouldQueue`
+* Use `dispatch()` instead of direct execution
+* Avoid heavy logic inside controllers — move to Jobs
+* Use `retryUntil()` for time-sensitive jobs
+* Use `batch()` for bulk processing
+
+---
+
+### Events
+
+Use events for:
+
+* Domain state changes
+* Decoupling side effects
+* Triggering async workflows
+
+Avoid placing business logic directly inside listeners — delegate to Actions.
+
+---
+
+### Validation
+
+Always use **Form Request classes**.
+
+Rules must:
+
+* Use typed rules
+* Extract reusable rules into custom rule objects
+* Avoid inline validation inside controllers
+
+---
+
+### Authorization
+
+* Use **Policies**
+* Never check permissions manually inside controllers
+* Use `$this->authorize()` or `can()` middleware
+
+---
+
+### API Design
+
+* Follow REST conventions
+* Use plural resource names
+* Use proper HTTP status codes
+* Return consistent JSON structure:
+
+```
 {
-  "success": true,
   "data": {},
-  "message": "",
-  "meta": {}
+  "meta": {},
+  "errors": []
 }
+```
 
-Regras
-Usar API Resources
-Nunca retornar models Eloquent diretamente
-Usar status codes corretos
-Implementar paginação com paginate()
-Versionar rotas: /api/v1/...
+---
 
-🔐 Autenticação e Autorização
-Usar Laravel Sanctum
-Usar Policies para autorização
-Não verificar permissões diretamente em Controllers
+### Testing (Pest)
 
-🗃️ Banco de Dados
-Criar sempre:
-Migrations
-Factories
-Seeders (quando necessário)
-Utilizar softDeletes() quando fizer sentido
-Padrão de nomes:
-Tabelas no plural
-Foreign keys: user_id, company_id
+Write tests for:
 
-🧪 Testes
-Utilizar Pest
-Prioridades:
-Feature tests para endpoints
-Unit tests para Services
-Usar RefreshDatabase
-Utilizar factories (nunca dados fixos)
+* Actions
+* Jobs
+* API endpoints
+* Multi-tenant isolation
 
-🧭 Convenções de Nomenclatura
-Tipo	Padrão
-Service	UserAssessmentService
-Job	GenerateAssessmentReportJob
-Event	UserAssessmentCreated
-Listener	SendAssessmentNotification
-DTO	AssessmentData
-FormRequest	StoreUserAssessmentRequest
+Guidelines:
 
-🖥️ Frontend
+* Use `RefreshDatabase`
+* Use factories
+* Avoid hitting external services (mock them)
+* Prefer **feature tests** over unit tests for HTTP flows
 
-Blade como padrão
-Vue 3 apenas para reatividade necessária
-jQuery apenas para legado
-Preferir Axios para novas requisições AJAX
-Componentes Vue em:
-resources/js/components
+---
 
-🎯 Boas Práticas de Código
-Tipagem explícita sempre que possível
-Retornos tipados
-Evitar Facades (preferir DI)
-Não usar lógica de negócio em helpers globais
-Utilizar Enums do PHP para estados fixos
-Utilizar Value Objects para dados complexos
-Usar config() ao invés de valores hardcoded
-Usar transactions em operações críticas
-Logar exceções com contexto
+## 🧩 Frontend Architecture (Vue 3 + TypeScript)
 
-🚫 Evitar
+### Rules
 
-Lógica em Controllers
-Queries complexas em Blade
-Código duplicado
-Regras de negócio em Jobs
+* Use **Composition API**
+* Use `<script setup lang="ts">`
+* Strong typing for props, emits, and API responses
+* Use `interfaces` or `types` for DTO mirroring backend
+* Keep components small and focused
 
-Validação fora de Form Requests
+---
 
-🔄 Fluxo Arquitetural Esperado
-Controller
- → FormRequest
- → Service
- → (Repository)
- → Event
- → Listener
- → Job
+### Folder Structure
 
-📣 Diretrizes para o Copilot
+```
+resources/js/
+ ├── Components/
+ ├── Pages/
+ ├── Composables/
+ ├── Services/   // API calls
+ ├── Types/      // TypeScript interfaces
+ └── Utils/
+```
 
-Ao sugerir código:
-Seguir os padrões definidos acima
-Priorizar legibilidade e testabilidade
-Sugerir uso de Services ao invés de lógica em Controllers
-Sugerir Form Requests para validação
-Sugerir API Resources para respostas de API
-Sugerir Jobs para processamento pesado
-Evitar soluções rápidas que violem a arquitetura
+---
 
-🧩 Exemplo de Service
-class CreateUserAssessmentService
+### API Consumption
+
+* All HTTP calls must be inside `Services/`
+* Never call API directly inside components
+* Use typed responses
+* Handle errors centrally
+
+---
+
+### State Management
+
+Use:
+
+* Vue composables for local state
+* Pinia only when global state is required
+
+---
+
+### Forms
+
+* Use controlled inputs
+* Use reusable form components
+* Extract validation logic
+* Show backend validation errors
+
+---
+
+### UI/UX
+
+* Use loading states for async operations
+* Disable buttons during requests
+* Show toast notifications for success/error
+* Use skeleton loaders when possible
+
+---
+
+## 🔐 Security
+
+Backend:
+
+* Never trust frontend input
+* Always validate and authorize
+* Escape output when necessary
+* Use rate limiting on sensitive endpoints
+
+Frontend:
+
+* Never store sensitive data in localStorage
+* Use CSRF protection via Laravel
+
+---
+
+## ⚡ Performance
+
+* Use eager loading to avoid N+1
+* Use pagination for large datasets
+* Cache heavy queries
+* Use queues for heavy processing
+* Debounce search inputs
+
+---
+
+## 🧰 Code Generation Rules for Copilot
+
+When generating code:
+
+1. Always use **typed PHP signatures**
+2. Prefer **Action classes** for business logic
+3. Use **Form Requests** for validation
+4. Use **API Resources** for responses
+5. Follow **multi-tenant safety**
+6. Use **DTOs** for structured data
+7. Write **Pest tests** alongside new features
+8. Generate **TypeScript types** matching backend resources
+9. Use **Services layer** for API calls in Vue
+10. Avoid duplicated logic between backend and frontend
+
+---
+
+## 🧪 Example Patterns Copilot Should Follow
+
+### Controller Pattern
+
+```php
+public function store(StoreUserRequest $request, CreateUserAction $action): JsonResponse
 {
-    public function execute(AssessmentData $data): UserAssessment
+    $user = $action->execute(UserData::fromRequest($request));
+
+    return response()->json([
+        'data' => new UserResource($user)
+    ], 201);
+}
+```
+
+---
+
+### Action Pattern
+
+```php
+class CreateUserAction
+{
+    public function execute(UserData $data): User
     {
-        return DB::transaction(function () use ($data) {
-            $assessment = UserAssessment::create($data->toArray());
-
-            event(new UserAssessmentCreated($assessment));
-
-            return $assessment;
-        });
+        return DB::transaction(fn () =>
+            User::create($data->toArray())
+        );
     }
 }
+```
 
-🧪 Exemplo de Teste (Pest)
-it('creates a user assessment', function () {
-    $data = UserAssessment::factory()->make()->toArray();
+---
 
-    $response = $this->postJson('/api/v1/assessments', $data);
+### Vue Service Pattern
 
-    $response->assertCreated()
-        ->assertJson(['success' => true]);
+```ts
+export async function createUser(payload: CreateUserDTO): Promise<UserDTO> {
+  const { data } = await api.post('/users', payload)
+  return data.data
+}
+```
 
-    $this->assertDatabaseHas('user_assessments', [
-        'user_id' => $data['user_id'],
-    ]);
-});
+---
 
-✅ Objetivo
+### Vue Component Pattern
 
-Garantir:
-Código limpo
-Baixo acoplamento
-Alta coesão
-Facilidade de manutenção
-Escalabilidade
-Cobertura de testes
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { createUser } from '@/Services/UserService'
+import type { CreateUserDTO } from '@/Types/User'
+
+const form = ref<CreateUserDTO>({
+  name: '',
+  email: '',
+})
+
+const loading = ref(false)
+
+async function submit() {
+  loading.value = true
+  try {
+    await createUser(form.value)
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+```
+
+---
+
+## 🚫 Anti-Patterns Copilot Must Avoid
+
+* Fat controllers
+* Business logic in models
+* Direct DB queries inside controllers
+* Inline validation
+* Using `any` in TypeScript
+* Duplicated API calls in components
+* Ignoring tenant scope
+* Not using API Resources
+
+---
+
+## ✅ Definition of Done
+
+A feature is complete only if:
+
+* Has Action/Service layer
+* Has Form Request validation
+* Has Policy authorization
+* Has API Resource
+* Has Pest test
+* Has typed Vue integration
+* Respects multi-tenant boundaries
+* Uses queues if heavy
+
+---
+
+## 📌 Summary
+
+Copilot must generate:
+
+* Clean, typed, testable code
+* Multi-tenant safe queries
+* RESTful APIs
+* Vue 3 Composition API with TypeScript
+* Separation of concerns
+* Scalable and maintainable patterns

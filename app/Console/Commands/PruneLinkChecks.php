@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
-use App\Models\LinkCheck;
-use App\Models\Link;
+use App\Enums\Plan;
+use App\Jobs\PruneLinkChecksJob;
 use Illuminate\Console\Command;
 
 class PruneLinkChecks extends Command
@@ -14,30 +16,15 @@ class PruneLinkChecks extends Command
 
     public function handle(): int
     {
-        $retention = [
-            'free' => 7,      // days
-            'starter' => 30,  // days
-            'unlimited' => 365, // days
-        ];
-
-        foreach ($retention as $plan => $days) {
-            // Collect IDs via join to avoid driver-specific delete syntax
-            $ids = \Illuminate\Support\Facades\DB::table('link_checks')
-                ->join('links', 'link_checks.link_id', '=', 'links.id')
-                ->join('users', 'links.user_id', '=', 'users.id')
-                ->where('users.plan', $plan)
-                ->where('link_checks.created_at', '<', now()->subDays($days))
-                ->pluck('link_checks.id');
-
-            if ($ids->isEmpty()) {
-                $this->info("Pruned 0 checks for plan {$plan}");
-                continue;
-            }
-
-            $deleted = LinkCheck::whereIn('id', $ids)->delete();
-
-            $this->info("Pruned {$deleted} checks for plan {$plan} (older than {$days} days)");
+        foreach (Plan::cases() as $plan) {
+            $retentionDays = $plan->logsRetentionDays();
+            
+            PruneLinkChecksJob::dispatch($plan->value, $retentionDays);
+            
+            $this->info("Dispatched prune job for plan {$plan->displayName()} (retention: {$retentionDays} days)");
         }
+
+        $this->info('All prune jobs have been dispatched to the queue');
 
         return 0;
     }

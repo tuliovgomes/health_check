@@ -59,13 +59,9 @@
         <div v-else-if="form.type === 'discord'" class="space-y-3">
           <div>
             <label class="block text-sm font-medium text-slate-300">Webhook URL</label>
-            <input v-model="form.token" type="text" required class="mt-1 w-full rounded-md bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm text-slate-100" placeholder="https://discord.com/api/webhooks/..." />
-            <p class="mt-1 text-xs text-slate-500">URL do webhook do Discord</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-300">Channel ID (opcional)</label>
-            <input v-model="form.user_token" type="text" class="mt-1 w-full rounded-md bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm text-slate-100" placeholder="1234567890" />
-            <p class="mt-1 text-xs text-slate-500">ID do canal do Discord</p>
+            <input v-model="form.token" type="text" :required="!isEditing || !form.has_token" class="mt-1 w-full rounded-md bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm text-slate-100" placeholder="https://discord.com/api/webhooks/..." />
+            <p v-if="isEditing && form.has_token" class="mt-1 text-xs text-emerald-400">✓ Webhook configurado. Deixe em branco para manter o atual ou preencha para atualizar.</p>
+            <p v-else class="mt-1 text-xs text-slate-500">URL do webhook do Discord</p>
           </div>
         </div>
 
@@ -200,7 +196,7 @@ async function save() {
       if (form.value.channel_token) payload.channel_token = form.value.channel_token
     } else if (form.value.type === 'discord') {
       if (form.value.token) payload.token = form.value.token
-      if (form.value.user_token) payload.user_token = form.value.user_token
+
     }
 
     const res = await fetch(url, {

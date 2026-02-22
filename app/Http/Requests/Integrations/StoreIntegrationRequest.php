@@ -44,8 +44,6 @@ class StoreIntegrationRequest extends FormRequest
             $rules['channel_token'] = ['required', 'string', 'max:255'];
         } elseif ($type === IntegrationType::DISCORD->value) {
             $rules['token'] = ['required', 'string', 'max:500'];
-            $rules['user_token'] = ['required', 'string', 'max:500'];
-            $rules['channel_token'] = ['sometimes', 'nullable', 'string', 'max:500'];
         }
 
         return $rules;
@@ -121,8 +119,7 @@ class StoreIntegrationRequest extends FormRequest
             'events.min' => 'Selecione pelo menos um evento para notificar.',
             'email.required' => 'O e-mail é obrigatório para integrações de e-mail.',
             'email.email' => 'Informe um e-mail válido.',
-            'token.required' => 'O token do bot é obrigatório para integrações Slack.',
-            'user_token.required' => 'O token do usuário é obrigatório para este tipo de integração.',
+            'token.required' => 'O token/webhook é obrigatório para este tipo de integração.',
             'channel_token.required' => 'O ID do canal é obrigatório para integrações Slack.',
         ];
     }

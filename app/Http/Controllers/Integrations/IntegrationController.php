@@ -118,9 +118,6 @@ class IntegrationController extends Controller
         if (isset($data['channel_token']) && empty($data['channel_token'])) {
             unset($data['channel_token']);
         }
-        if (isset($data['user_token']) && empty($data['user_token'])) {
-            unset($data['user_token']);
-        }
         
         $integration->update($data);
 

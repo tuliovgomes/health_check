@@ -4,6 +4,9 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { dashboard } from '@/routes';
 import { Database, Link, Zap } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
+import axios from 'axios';
+import LinkChecksChart from '@/components/LinkChecksChart.vue';
 
 type Stats = {
     links: {
@@ -27,10 +30,30 @@ type Plan = {
     key: string;
 };
 
-defineProps<{
+type UserLink = {
+    id: number;
+    title: string;
+    url: string;
+};
+
+type LinkCheck = {
+    id: number;
+    status: 'up' | 'down' | 'unhealth';
+    http_status: number | null;
+    response_time_ms: number | null;
+    error: string | null;
+    created_at: string;
+};
+
+const props = defineProps<{
     stats: Stats;
     plan: Plan;
+    userLinks: UserLink[];
 }>();
+
+const selectedLinkId = ref<number | null>(props.userLinks[0]?.id ?? null);
+const linkChecks = ref<LinkCheck[]>([]);
+const isLoadingChecks = ref(false);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -44,6 +67,25 @@ const getProgressColor = (percentage: number) => {
     if (percentage >= 70) return 'bg-yellow-500';
     return 'bg-green-500';
 };
+
+const loadLinkChecks = async (linkId: number) => {
+    isLoadingChecks.value = true;
+    try {
+        const response = await axios.get(`/api/links/${linkId}/checks`);
+        linkChecks.value = response.data;
+    } catch (error) {
+        console.error('Erro ao carregar checks:', error);
+        linkChecks.value = [];
+    } finally {
+        isLoadingChecks.value = false;
+    }
+};
+
+watch(selectedLinkId, (newLinkId) => {
+    if (newLinkId) {
+        loadLinkChecks(newLinkId);
+    }
+}, { immediate: true });
 </script>
 
 <template>
@@ -151,48 +193,40 @@ const getProgressColor = (percentage: number) => {
             <div
                 class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 bg-card p-6 md:min-h-min dark:border-sidebar-border"
             >
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div class="flex items-center justify-between">
                         <div>
                             <h3 class="text-lg font-semibold">Visão Geral</h3>
                             <p class="text-sm text-muted-foreground">
-                                Seu plano atual: <span class="font-medium">{{ plan.name }}</span>
+                                Histórico de checks por link
                             </p>
                         </div>
                     </div>
-                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        <div class="rounded-lg border p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="rounded-full bg-blue-500/10 p-2">
-                                    <Link :size="20" class="text-blue-500" />
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium">Total de Checks</p>
-                                    <p class="text-2xl font-bold">{{ stats.links.current }}</p>
-                                </div>
-                            </div>
+                    
+                    <!-- Select de Link -->
+                    <div v-if="userLinks.length > 0" class="space-y-2">
+                        <label for="link-select" class="text-sm font-medium">
+                            Selecione um Link
+                        </label>
+                        <select 
+                            id="link-select"
+                            v-model="selectedLinkId"
+                            class="w-full px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                            <option v-for="link in userLinks" :key="link.id" :value="link.id">
+                                {{ link.title }} - {{ link.url }}
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="rounded-lg border p-6">
+                        <h4 class="text-sm font-semibold mb-4">Últimas 20 Requisições</h4>
+                        <div v-if="isLoadingChecks" class="flex items-center justify-center py-12">
+                            <div class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                         </div>
-                        <div class="rounded-lg border p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="rounded-full bg-purple-500/10 p-2">
-                                    <Zap :size="20" class="text-purple-500" />
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium">Total de Integrações</p>
-                                    <p class="text-2xl font-bold">{{ stats.integrations.current }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="rounded-lg border p-4">
-                            <div class="flex items-center gap-3">
-                                <div class="rounded-full bg-orange-500/10 p-2">
-                                    <Database :size="20" class="text-orange-500" />
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium">Logs de Health Check</p>
-                                    <p class="text-2xl font-bold">{{ stats.logs.count.toLocaleString('pt-BR') }}</p>
-                                </div>
-                            </div>
+                        <LinkChecksChart v-else-if="userLinks.length > 0" :checks="linkChecks" />
+                        <div v-else class="flex items-center justify-center py-12 text-muted-foreground">
+                            <p>Nenhum link disponível. Crie um link para visualizar os checks.</p>
                         </div>
                     </div>
                 </div>

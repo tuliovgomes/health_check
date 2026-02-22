@@ -17,10 +17,8 @@ class IntegrationsPageController extends Controller
         $user = $request->user();
         $userPlan = Plan::tryFrom($user->plan) ?? Plan::FREE;
         
-        // Obtém configurações do plano
         $planConfig = config("plans.plans.{$userPlan->value}");
         
-        // Tipos permitidos baseados nos canais de notificação
         $allowedTypes = [];
         if ($planConfig['notifications']['channels']['email'] ?? false) {
             $allowedTypes[] = 'email';
@@ -40,7 +38,6 @@ class IntegrationsPageController extends Controller
             }
         }
         
-        // Define restrições baseadas no plano
         $planLimits = [
             'plan' => $userPlan->value,
             'plan_name' => $userPlan->displayName(),

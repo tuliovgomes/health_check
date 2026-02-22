@@ -16,6 +16,7 @@ class LinkController extends Controller
         $this->middleware('ensure.link.belongs')->only(['show', 'destroy']);
         $this->middleware('ensure.within.links.quota')->only(['store']);
     }
+    
     public function index(Request $request)
     {
         $links = $request->user()->links()
@@ -61,8 +62,8 @@ class LinkController extends Controller
         try {
             $checks = $link->checks()->latest()->paginate($perPage);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('LinkController@show checks load failed', ['message' => $e->getMessage()]);
-            // Return empty pagination structure on error
+            Log::error('LinkController@show checks load failed', ['message' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load checks',

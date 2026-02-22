@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Integrations\StoreIntegrationRequest;
 use App\Http\Requests\Integrations\UpdateIntegrationRequest;
 use App\Models\Integration;
+use App\Services\Integrations\IntegrationNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -140,7 +141,7 @@ class IntegrationController extends Controller
     public function test(Request $request, Integration $integration): JsonResponse
     {
         try {
-            $service = app(\App\Services\Integrations\IntegrationNotificationService::class);
+            $service = app(IntegrationNotificationService::class);
             $service->sendTestNotification($integration);
 
             return response()->json([

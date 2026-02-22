@@ -39,6 +39,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/integrations/{integration}', [IntegrationController::class, 'update'])->name('api.integrations.update');
         Route::delete('/integrations/{integration}', [IntegrationController::class, 'destroy'])->name('api.integrations.destroy');
         Route::post('/integrations/{integration}/test', [IntegrationController::class, 'test'])->name('api.integrations.test');
+        
+        // Link checks API routes
+        Route::get('/links/{link}/checks', [DashboardController::class, 'getLinkChecks'])->name('api.links.checks');
     });
 });
     

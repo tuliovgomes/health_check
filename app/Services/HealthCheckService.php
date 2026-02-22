@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Enums\LinkStatus;
+use App\Events\LinkCheckCreated;
 use App\Models\Link;
 use App\Models\LinkCheck;
-use App\Enums\LinkStatus;
 use App\Traits\DeterminesHealthStatus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -50,6 +53,9 @@ class HealthCheckService
 
         // update last_checked_at
         $link->forceFill(['last_checked_at' => now()])->save();
+
+        // Dispatch event for notification listeners
+        LinkCheckCreated::dispatch($check);
 
         return $check;
     }

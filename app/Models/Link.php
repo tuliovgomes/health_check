@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Link extends Model
 {
@@ -23,14 +27,20 @@ class Link extends Model
         'check_interval' => 'integer',
     ];
 
-    public function user()
+    /**
+     * Get the user that owns the link.
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function checks()
+    /**
+     * Get the link checks.
+     */
+    public function checks(): HasMany
     {
-        return $this->hasMany(\App\Models\LinkCheck::class)->latest();
+        return $this->hasMany(LinkCheck::class)->latest();
     }
 
     /**

@@ -118,7 +118,7 @@ const isEditing = computed(() => !!props.integration)
 
 const availableEvents = [
   { value: 'link_down', label: 'Link Fora do Ar' },
-  { value: 'link_up', label: 'Link Restaurado' },
+  { value: 'link_up', label: 'Link OK' },
   { value: 'link_slow', label: 'Link Lento' },
   { value: 'link_error', label: 'Erro no Link' },
 ]

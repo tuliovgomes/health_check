@@ -13,7 +13,7 @@ enum EventType: string
     {
         return match ($this) {
             self::LINK_DOWN => 'Link Fora do Ar',
-            self::LINK_UP => 'Link Restaurado',
+            self::LINK_UP => 'Link OK',
             self::LINK_SLOW => 'Link Lento',
             self::LINK_ERROR => 'Erro no Link',
         };

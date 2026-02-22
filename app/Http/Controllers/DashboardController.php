@@ -89,7 +89,6 @@ class DashboardController extends Controller
                 'error' => $check->error,
                 'created_at' => $check->created_at->diffForHumans(),
             ])
-            ->reverse()
             ->values();
         
         return response()->json($checks);

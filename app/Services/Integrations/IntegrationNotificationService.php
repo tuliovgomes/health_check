@@ -113,7 +113,6 @@ class IntegrationNotificationService
             throw new \Exception('Channel token not configured for Slack integration');
         }
 
-        // Webhook URL do Slack
         $webhookUrl = $channelToken;
 
         $payload = [
@@ -199,7 +198,7 @@ class IntegrationNotificationService
                 'Data/Hora' => now()->format('d/m/Y H:i:s'),
                 'Status' => 'Esta é uma notificação de teste',
             ],
-            'event' => EventType::LINK_DOWN, // Apenas para o formato
+            'event' => EventType::LINK_DOWN,
         ];
 
         match ($integration->type) {

@@ -25,12 +25,12 @@ return [
             'stripe_price_id' => null, // set your Stripe price id to enable real billing
             'notifications' => [
                 'channels' => [
-                    'email' => true, 
-                    'slack' => false, 
+                    'email' => true,
+                    'slack' => false,
                     'discord' => false
                 ],
                 'events' => [
-                    'link_down' => true, 
+                    'link_down' => true,
                     'link_error' => true,
                     'link_up' => false,
                     'link_slow' => false
@@ -51,12 +51,12 @@ return [
             'stripe_price_id' => env('STRIPE_PRICE_STARTER', null),
             'notifications' => [
                 'channels' => [
-                    'email' => true, 
-                    'slack' => true, 
+                    'email' => true,
+                    'slack' => true,
                     'discord' => true
                 ],
                 'events' => [
-                    'link_down' => true, 
+                    'link_down' => true,
                     'link_error' => true,
                     'link_up' => false,
                     'link_slow' => false
@@ -68,7 +68,7 @@ return [
             'key' => 'unlimited',
             'name' => 'Unlimited',
             'description' => 'Plano Ilimitado',
-            'price' => 9.90,
+            'price' => 9.99,
             'currency' => 'BRL',
             'monthly' => true,
             'links_quota' => null, // null = unlimited
@@ -77,12 +77,12 @@ return [
             'stripe_price_id' => env('STRIPE_PRICE_UNLIMITED', null),
             'notifications' => [
                 'channels' => [
-                    'email' => true, 
-                    'slack' => true, 
+                    'email' => true,
+                    'slack' => true,
                     'discord' => true
                 ],
                 'events' => [
-                    'link_down' => true, 
+                    'link_down' => true,
                     'link_error' => true,
                     'link_up' => true,
                     'link_slow' => true

@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 class RunHealthChecks extends Command
 {
     // optional interval argument (minutes): 1,5,15,30,60
-    protected $signature = 'health:check {interval?} {--batch-size=100 : Number of links per concurrent batch}';
+    protected $signature = 'health:check {interval?} {--batch-size=50 : Number of links per concurrent batch}';
 
     protected $description = 'Dispatch health checks for links that are due (optionally for a specific interval)';
 

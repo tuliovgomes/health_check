@@ -42,6 +42,33 @@
         </div>
       </div>
 
+      <!-- Pagination -->
+      <div v-if="links.last_page > 1" class="flex items-center justify-between px-1 py-2">
+        <p class="text-xs text-slate-400">
+          Exibindo {{ links.from }}–{{ links.to }} de {{ links.total }} links
+        </p>
+        <div class="flex items-center gap-1">
+          <template v-for="link in links.links" :key="link.label">
+            <button
+              v-if="link.url"
+              @click="goToPage(link.url)"
+              :class="[
+                'px-3 py-1 rounded text-xs font-medium transition-colors',
+                link.active
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-slate-300 hover:bg-slate-700'
+              ]"
+              v-html="link.label"
+            />
+            <span
+              v-else
+              class="px-3 py-1 rounded text-xs text-slate-600"
+              v-html="link.label"
+            />
+          </template>
+        </div>
+      </div>
+
     </div>
     <CreateLinkModal v-if="showModal" @close="showModal = false" @created="handleLinkCreated" @error="handleLinkError" />
     <LinkChecksModal v-if="showChecksModal && selectedLinkId !== null" :link-id="selectedLinkId" @close="showChecksModal=false; selectedLinkId=null" />
@@ -55,16 +82,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 import { Trash, Activity } from 'lucide-vue-next';
 import LinkChecksModal from './LinkChecksModal.vue'
 import CreateLinkModal from './CreateLinkModal.vue'
 
 const page = usePage()
-const rawProps = (page.props as any)?.value ?? (page.props as any) ?? {}
-const links = ref(rawProps.links ?? { data: [] })
+const links = ref<any>((page.props as any).links ?? { data: [] })
+
+// Sync when Inertia navigates to a new page
+watch(() => (page.props as any).links, (updated) => {
+  if (updated) links.value = updated
+})
 
 const showModal = ref(false)
 const showChecksModal = ref(false)
@@ -79,6 +110,11 @@ function showToast(message: string, type: 'success' | 'error' = 'success', timeo
   toastTimer = window.setTimeout(() => { toast.value.visible = false }, timeout)
 }
 
+
+function goToPage(url: string | null) {
+  if (!url) return
+  router.get(url, {}, { preserveScroll: false })
+}
 
 function openChecks(id: number) {
   selectedLinkId.value = id

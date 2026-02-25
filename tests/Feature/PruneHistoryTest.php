@@ -12,7 +12,7 @@ it('prunes link checks according to plan retention', function () {
     // old (should be pruned for free = 7 days)
     $old = LinkCheck::create([
         'link_id' => $link->id,
-        'status' => 'up',
+        'status' => 'healthy',
         'http_status' => 200,
         'response_time_ms' => 10,
     ]);
@@ -20,7 +20,7 @@ it('prunes link checks according to plan retention', function () {
     // recent (should remain)
     $recent = LinkCheck::create([
         'link_id' => $link->id,
-        'status' => 'up',
+        'status' => 'healthy',
         'http_status' => 200,
         'response_time_ms' => 10,
     ]);

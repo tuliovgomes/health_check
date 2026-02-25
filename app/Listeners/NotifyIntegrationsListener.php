@@ -28,10 +28,10 @@ class NotifyIntegrationsListener implements ShouldQueue
     public function handle(LinkCheckCreated $event): void
     {
         $linkCheck = $event->linkCheck;
-        
+
         // Ensure link and user relationships are loaded
         $linkCheck->loadMissing('link.user.integrations');
-        
+
         $link = $linkCheck->link;
 
         // Determine event type based on check status
@@ -75,7 +75,7 @@ class NotifyIntegrationsListener implements ShouldQueue
 
         return match ($linkCheck->status->value) {
             'down' => EventType::LINK_DOWN,
-            'up' => EventType::LINK_UP,
+            'healthy' => EventType::LINK_UP,
             'unhealth' => EventType::LINK_SLOW,
             default => null,
         };

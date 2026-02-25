@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 type LinkCheck = {
     id: number;
-    status: 'up' | 'down' | 'unhealth';
+    status: 'healthy' | 'down' | 'unhealth';
     http_status: number | null;
     response_time_ms: number | null;
     error: string | null;
@@ -17,7 +17,7 @@ const props = defineProps<{
 
 const getStatusColor = (status: string) => {
     switch (status) {
-        case 'up':
+        case 'healthy':
             return 'bg-green-500';
         case 'down':
             return 'bg-red-500';
@@ -30,8 +30,8 @@ const getStatusColor = (status: string) => {
 
 const getStatusLabel = (status: string) => {
     switch (status) {
-        case 'up':
-            return 'Up';
+        case 'healthy':
+            return 'Healthy';
         case 'down':
             return 'Down';
         case 'unhealth':
@@ -63,7 +63,7 @@ const formatDate = (dateString: string) => {
                 <Tooltip>
                     <TooltipTrigger as-child>
                         <div class="flex flex-col justify-end h-full cursor-pointer group" style="min-width: 24px; max-width: 24px;">
-                            <div 
+                            <div
                                 :class="[getStatusColor(check.status), 'w-full h-full transition-all duration-200 rounded-t-sm group-hover:opacity-80']"
                             ></div>
                         </div>
@@ -71,7 +71,7 @@ const formatDate = (dateString: string) => {
                     <TooltipContent class="p-3 space-y-1.5">
                         <div class="font-semibold text-sm">
                             Status: <span :class="{
-                                'text-green-500': check.status === 'up',
+                                'text-green-500': check.status === 'healthy',
                                 'text-red-500': check.status === 'down',
                                 'text-yellow-500': check.status === 'unhealth'
                             }">{{ getStatusLabel(check.status) }}</span>

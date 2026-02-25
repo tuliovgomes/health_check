@@ -75,7 +75,7 @@ it('stores a valid http_status or marks the link as down when host is unreachabl
         expect($check)->not->toBeNull();
 
         // Status must be one of the valid enum values
-        expect($check->status->value)->toBeIn(['up', 'unhealth', 'down']);
+        expect($check->status->value)->toBeIn(['healthy', 'unhealth', 'down']);
 
         // Response time must be recorded (>= 0)
         expect($check->response_time_ms)->toBeGreaterThanOrEqual(0);

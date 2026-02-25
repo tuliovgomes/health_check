@@ -15,5 +15,5 @@ it('applies rule precedence and returns correct LinkStatus for combinations', fu
 
     expect($obj->callDetermine(1500, false))->toBe(LinkStatus::DOWN);
     expect($obj->callDetermine(1500, true))->toBe(LinkStatus::UNHEALTH);
-    expect($obj->callDetermine(500, true))->toBe(LinkStatus::UP);
+    expect($obj->callDetermine(500, true))->toBe(LinkStatus::HEALTHY);
 });

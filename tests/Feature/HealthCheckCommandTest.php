@@ -24,7 +24,7 @@ it('dispatches checks and persists history when health:check runs', function () 
 
     $this->assertDatabaseHas('link_checks', [
         'link_id' => $link->id,
-        'status' => 'up',
+        'status' => 'healthy',
         'http_status' => 200,
     ]);
 

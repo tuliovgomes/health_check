@@ -33,12 +33,12 @@ class LinkCheckFactory extends Factory
     }
 
     /**
-     * Indicate that the check was successful (up).
+     * Indicate that the check was successful (healthy).
      */
-    public function up(): static
+    public function healthy(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => LinkStatus::UP,
+            'status' => LinkStatus::HEALTHY,
             'http_status' => 200,
             'error' => null,
         ]);

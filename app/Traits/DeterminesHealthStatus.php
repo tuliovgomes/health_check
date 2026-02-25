@@ -16,7 +16,7 @@ trait DeterminesHealthStatus
         $rules = [
             [LinkStatus::DOWN, fn($ms, $ok, $code) => ! $ok],
             [LinkStatus::UNHEALTH, fn($ms, $ok, $code) => $ok && $ms > 1000],
-            [LinkStatus::UP, fn($ms, $ok, $code) => $ok && $ms <= 1000],
+            [LinkStatus::HEALTHY, fn($ms, $ok, $code) => $ok && $ms <= 1000],
         ];
 
         foreach ($rules as [$status, $predicate]) {

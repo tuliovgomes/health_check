@@ -38,7 +38,7 @@ type UserLink = {
 
 type LinkCheck = {
     id: number;
-    status: 'up' | 'down' | 'unhealth';
+    status: 'healthy' | 'down' | 'unhealth';
     http_status: number | null;
     response_time_ms: number | null;
     error: string | null;
@@ -202,13 +202,13 @@ watch(selectedLinkId, (newLinkId) => {
                             </p>
                         </div>
                     </div>
-                    
+
                     <!-- Select de Link -->
                     <div v-if="userLinks.length > 0" class="space-y-2">
                         <label for="link-select" class="text-sm font-medium">
                             Selecione um Link
                         </label>
-                        <select 
+                        <select
                             id="link-select"
                             v-model="selectedLinkId"
                             class="w-full px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -218,7 +218,7 @@ watch(selectedLinkId, (newLinkId) => {
                             </option>
                         </select>
                     </div>
-                    
+
                     <div class="rounded-lg border p-6">
                         <h4 class="text-sm font-semibold mb-4">Últimas 20 Requisições</h4>
                         <div v-if="isLoadingChecks" class="flex items-center justify-center py-12">
